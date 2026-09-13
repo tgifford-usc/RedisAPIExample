@@ -1,0 +1,67 @@
+# Requests for testing the API with the REST Client extension in VS Code.
+# Click "Send Request" above any request (or put the cursor in it and press Ctrl+Alt+R / Cmd+Alt+R).
+# Requests are separated by lines starting with ###.
+
+# Where the app is running. Swap these two lines to test the deployed version.
+@host = http://localhost:3000
+# @host = https://YOUR-PROJECT.vercel.app
+
+
+### The usage message
+GET {{host}}/
+
+
+### Read a key. On a fresh database this is a 404: nothing is stored yet.
+GET {{host}}/api/greeting
+
+
+### Store a value under that key. Run this, then run the GET above again.
+PUT {{host}}/api/greeting
+Content-Type: application/json
+
+{
+  "value": "hello from DES222"
+}
+
+
+### Overwrite it with something else, then GET again.
+PUT {{host}}/api/greeting
+Content-Type: application/json
+
+{
+  "value": "a different greeting"
+}
+
+
+### The value doesn't have to be a string. Any JSON works: numbers, lists, objects.
+PUT {{host}}/api/profile
+Content-Type: application/json
+
+{
+  "value": {
+    "name": "Ann",
+    "score": 42,
+    "tags": ["student", "des222"]
+  }
+}
+
+
+### And it comes back as the same JSON.
+GET {{host}}/api/profile
+
+
+### A key that was never stored → 404 with an error message.
+GET {{host}}/api/nothing-here
+
+
+### A PUT with no body → 400. The API tells you what it expected.
+PUT {{host}}/api/greeting
+
+
+### A PUT whose body isn't { "value": … } → also 400.
+PUT {{host}}/api/greeting
+Content-Type: application/json
+
+{
+  "greeting": "this is the wrong shape"
+}

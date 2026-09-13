@@ -1,0 +1,17 @@
+{
+  "name": "redistest",
+  "version": "1.0.0",
+  "description": "A tiny key/value REST API on Express + Upstash Redis",
+  "license": "MIT",
+  "author": "tgifford-usc",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --env-file=.env.local index.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.38.4",
+    "express": "^5.2.1"
+  }
+}
