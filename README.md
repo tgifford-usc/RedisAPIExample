@@ -121,7 +121,7 @@ Things to notice:
 1. Create a new, empty repository on GitHub under your own account, and push this folder to it, the same way you did for your Express app. Before you push, check that `.env.local` is **not** in the list of files being committed.
 2. On [vercel.com](https://vercel.com), **Add New → Project**, import the repo, and deploy.
 3. Open your `https://YOUR-PROJECT.vercel.app/api/greeting`. It will fail with a `500` error, because Vercel doesn't have your database credentials: `.env.local` is only on your laptop.
-4. In the Vercel project, go to **Settings → Environment Variables** and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` with the same values as your `.env.local`.
+4. In the Vercel project, go to **Settings → Environment Variables** and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` with the same values as your `.env.local`, **without the quote marks**. Upstash gives you `UPSTASH_REDIS_REST_URL="https://…"`; in Vercel the value is just `https://…`. (Locally the quotes are harmless: Node strips them. Vercel keeps them, and the app crashes on startup.)
 5. **Redeploy** (Deployments → ⋯ on the latest one → Redeploy). Environment variables only take effect on a fresh deployment; this is the step everyone forgets.
 6. Open `/api/greeting` again. If you stored a value in Step 2, it's there: same database.
 
@@ -133,6 +133,7 @@ To test the `PUT` on the deployed version, change the `@host` line at the top of
 |---|---|
 | `{"error":"Failed to parse URL from /pipeline"}` | The app can't see `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. Locally: is `.env.local` in the project folder, and did you start with `npm run dev`? On Vercel: did you add both variables **and redeploy**? The server log (your terminal, or Vercel → Deployments → the deployment → Logs) says which variable is missing. |
 | `{"error":"WRONGPASS invalid or missing auth token…"}` | The token is wrong or incomplete. Copy it again from Upstash. |
+| Vercel shows **This Serverless Function has crashed** | The app threw an error while starting up, before it could handle the request. Open the deployment's **Logs** in Vercel to see why. The usual cause: the environment variable values were pasted with their quote marks, so the URL is `"https://…"` instead of `https://…` (the log will say `passed an invalid URL`). Edit the variables to remove the quotes and redeploy. |
 | `Cannot GET /api` or an HTML 404 page | The URL doesn't match a route. Routes are `/api/` followed by a single word. |
 | `PUT` gives `400` "Send a JSON body like…" | The body isn't `{ "value": … }`, or the `Content-Type: application/json` header is missing. |
 | `npm run dev` says `Cannot find package 'express'` | You skipped `npm install`, or ran it in the wrong folder. |
