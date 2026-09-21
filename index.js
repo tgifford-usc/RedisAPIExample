@@ -21,7 +21,7 @@ app.use(express.json())
 
 app.get('/', (req, res) => {
   res.type('text').send(
-    'Key/value store\n\n' +
+    'Key/value store \n\n' +
     'GET /api/key                            → read the value stored under key\n' +
     'PUT /api/key  with body { "value": … }  → store a value under key\n'
   )
