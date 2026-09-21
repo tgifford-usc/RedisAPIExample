@@ -13,7 +13,7 @@ const app = express()
 const port = 3000
 
 // Reads UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN from the environment.
-// Locally they come from .env.local; on Vercel from Settings → Environment Variables.
+// Locally they come from .env; on Vercel from Settings → Environment Variables.
 const redis = Redis.fromEnv()
 
 // Turn a JSON request body into req.body

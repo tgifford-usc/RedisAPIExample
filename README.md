@@ -24,8 +24,8 @@ Browser / curl ──PUT /api/greeting {value: "hi"}─▶ Express on Vercel ─
 | `index.js` | The whole app: an Express server with the two routes above |
 | `test.http` | Ready-made requests for testing the API from VS Code |
 | `package.json` | Lists the two dependencies (`express`, `@upstash/redis`) and the `npm run dev` command |
-| `.gitignore` | Keeps `node_modules/` and `.env.local` out of git |
-| `.env.local` | **You create this** (Step 2). Holds your database credentials. Never committed. |
+| `.gitignore` | Keeps `node_modules/` and `.env` out of git |
+| `.env` | **You create this** (Step 2). Holds your database credentials. Never committed. |
 
 ## Step 1: Create the database
 
@@ -45,14 +45,14 @@ npm install
 
 This reads `package.json` and installs `express` and `@upstash/redis` into `node_modules/`.
 
-Create `.env.local` in the project folder, containing the two lines you copied from Upstash:
+Create `.env` in the project folder, containing the two lines you copied from Upstash:
 
 ```
 UPSTASH_REDIS_REST_URL=https://…
 UPSTASH_REDIS_REST_TOKEN=…
 ```
 
-`.gitignore` already lists `node_modules/` and `.env.local`, so neither can be committed by accident.
+`.gitignore` already lists `node_modules/` and `.env`, so neither can be committed by accident.
 
 Now start the server:
 
@@ -110,18 +110,18 @@ Things to notice:
 
 ```json
 "scripts": {
-  "dev": "node --env-file=.env.local index.js"
+  "dev": "node --env-file=.env index.js"
 }
 ```
 
-`--env-file` is built into Node (20.6 and later): it loads `.env.local` into `process.env`, which is where `Redis.fromEnv()` looks. On Vercel there is no `.env.local`; the same two variables come from the project settings instead, which is the extra step in deploying.
+`--env-file` is built into Node (20.6 and later): it loads `.env` into `process.env`, which is where `Redis.fromEnv()` looks. On Vercel there is no `.env`; the same two variables come from the project settings instead, which is the extra step in deploying.
 
 ## Step 4: Deploy
 
-1. Create a new, empty repository on GitHub under your own account, and push this folder to it, the same way you did for your Express app. Before you push, check that `.env.local` is **not** in the list of files being committed.
+1. Create a new, empty repository on GitHub under your own account, and push this folder to it, the same way you did for your Express app. Before you push, check that `.env` is **not** in the list of files being committed.
 2. On [vercel.com](https://vercel.com), **Add New → Project**, import the repo, and deploy.
-3. Open your `https://YOUR-PROJECT.vercel.app/api/greeting`. It will fail with a `500` error, because Vercel doesn't have your database credentials: `.env.local` is only on your laptop.
-4. In the Vercel project, go to **Settings → Environment Variables** and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` with the same values as your `.env.local`, **without the quote marks**. Upstash gives you `UPSTASH_REDIS_REST_URL="https://…"`; in Vercel the value is just `https://…`. (Locally the quotes are harmless: Node strips them. Vercel keeps them, and the app crashes on startup.)
+3. Open your `https://YOUR-PROJECT.vercel.app/api/greeting`. It will fail with a `500` error, because Vercel doesn't have your database credentials: `.env` is only on your laptop.
+4. In the Vercel project, go to **Settings → Environment Variables** and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` with the same values as your `.env`, **without the quote marks**. Upstash gives you `UPSTASH_REDIS_REST_URL="https://…"`; in Vercel the value is just `https://…`. (Locally the quotes are harmless: Node strips them. Vercel keeps them, and the app crashes on startup.)
 5. **Redeploy** (Deployments → ⋯ on the latest one → Redeploy). Environment variables only take effect on a fresh deployment; this is the step everyone forgets.
 6. Open `/api/greeting` again. If you stored a value in Step 2, it's there: same database.
 
@@ -131,7 +131,7 @@ To test the `PUT` on the deployed version, change the `@host` line at the top of
 
 | Symptom | Cause |
 |---|---|
-| `{"error":"Failed to parse URL from /pipeline"}` | The app can't see `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. Locally: is `.env.local` in the project folder, and did you start with `npm run dev`? On Vercel: did you add both variables **and redeploy**? The server log (your terminal, or Vercel → Deployments → the deployment → Logs) says which variable is missing. |
+| `{"error":"Failed to parse URL from /pipeline"}` | The app can't see `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. Locally: is `.env` in the project folder, and did you start with `npm run dev`? On Vercel: did you add both variables **and redeploy**? The server log (your terminal, or Vercel → Deployments → the deployment → Logs) says which variable is missing. |
 | `{"error":"WRONGPASS invalid or missing auth token…"}` | The token is wrong or incomplete. Copy it again from Upstash. |
 | Vercel shows **This Serverless Function has crashed** | The app threw an error while starting up, before it could handle the request. Open the deployment's **Logs** in Vercel to see why. The usual cause: the environment variable values were pasted with their quote marks, so the URL is `"https://…"` instead of `https://…` (the log will say `passed an invalid URL`). Edit the variables to remove the quotes and redeploy. |
 | `Cannot GET /api` or an HTML 404 page | The URL doesn't match a route. Routes are `/api/` followed by a single word. |
